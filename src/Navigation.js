@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useState, useContext } from 'react';
 import {
     Collapse,
     Navbar,
@@ -16,10 +16,13 @@ import {
     Button
 } from 'reactstrap';
 import styled from "styled-components"
-
+import { PositionContext } from "./hooks/usePosition"
+import { shortAddress } from "./utils"
 
 const Navigation = styled(
     ({ className }) => {
+
+        const { connect, disconnect, isConnected, account } = useContext(PositionContext)
 
         const [isOpen, setIsOpen] = useState(false);
 
@@ -27,32 +30,36 @@ const Navigation = styled(
 
         return (
             <Container className={className}>
-                <Navbar expand="md">
+                <Navbar className="navbar" expand="md">
                     <NavbarBrand className="brand" href="/">BAI STABLECOIN</NavbarBrand>
                     <NavbarToggler onClick={toggle} />
                     <Collapse isOpen={isOpen} navbar>
                         <Nav className="ml-auto" navbar>
+                            {!isConnected
+                                ?
+                                <NavItem>
+                                    <Button onClick={() => connect()} color="info">Connect</Button>
+                                </NavItem>
+                                :
+                                <UncontrolledDropdown nav inNavbar>
+                                    <DropdownToggle nav caret>
+                                        {account && shortAddress(account)}
+                                    </DropdownToggle>
+                                    <DropdownMenu right>
+                                        {/* <DropdownItem>
+                                            Option 1
+                                        </DropdownItem>
+                                        <DropdownItem>
+                                            Option 2
+                                        </DropdownItem>
+                                        <DropdownItem divider /> */}
+                                        <DropdownItem onClick={() => disconnect()}>
+                                            Disconnect
+                                        </DropdownItem>
+                                    </DropdownMenu>
+                                </UncontrolledDropdown>
+                            }
 
-                            <NavItem>
-                                <Button color="info">Connect</Button>
-                            </NavItem>
-                            {/* <UncontrolledDropdown nav inNavbar>
-                                <DropdownToggle nav caret>
-                                    Options
-                                </DropdownToggle>
-                                <DropdownMenu right>
-                                    <DropdownItem>
-                                        Option 1
-                                    </DropdownItem>
-                                    <DropdownItem>
-                                        Option 2
-                                    </DropdownItem>
-                                    <DropdownItem divider />
-                                    <DropdownItem>
-                                        Reset
-                                    </DropdownItem>
-                                </DropdownMenu>
-                            </UncontrolledDropdown> */}
                         </Nav>
 
                     </Collapse>
@@ -70,7 +77,9 @@ const Navigation = styled(
     .brand {
         text-shadow: 2px 2px black;
     }
-
+    .navbar { 
+        height: 70px; 
+    }
 
     `
 
