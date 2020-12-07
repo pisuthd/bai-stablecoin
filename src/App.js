@@ -1,7 +1,7 @@
 import { createGlobalStyle } from 'styled-components'
 import MainPanel from "./Main"
 import Navigation from "./Navigation"
-import PositionProvider from "./hooks/usePosition"
+import ContractsProvider from "./hooks/useContracts"
 
 const GlobalStyle = createGlobalStyle`
  
@@ -14,13 +14,13 @@ const GlobalStyle = createGlobalStyle`
 
 function App() {
   return (
-    <PositionProvider>
+    <ContractsProvider>
       <GlobalStyle />
       <div className="body">
         <Navigation/>
         <MainPanel />
       </div>
-    </PositionProvider>
+    </ContractsProvider>
   );
 }
 

@@ -1,76 +1,56 @@
-import React, { useEffect, useMemo, useReducer, createContext } from 'react';
-import Web3 from "web3"
+import { useMemo, useEffect, useState, useCallback } from "react";
+import PositionManager from "../abi/PositionManager.json"
 
-export const PositionContext = createContext({});
+export const usePosition = (address, account) => {
 
-const Provider = ({ children }) => {
+    const contract = useMemo(() => {
+        if (!account || !address) {
+            return
+        }
+        return new window.web3.eth.Contract(PositionManager.abi, address)
+    }, [account, address])
 
-    const [state, dispatch] = useReducer(
-        (prevState, action) => {
-            switch (action.type) {
-                case 'UPDATE_ACCOUNT':
-                    return {
-                        ...prevState,
-                        isConnected : action.data ? true : false ,
-                        account: action.data
-                    };
-                default:
-                    return {
-                        ...prevState
-                    }
+    const [totalCollateralAmount, setTotalCollateralAmount] = useState("--");
+    const [collateralizationRatio, setCollateralizationRatio] = useState("--");
+    const [totalTokensOutstanding, setTotalTokensOutstanding] = useState("--");
+
+    const getStats = useCallback(
+        async () => {
+            try {
+                const totalCollateralAmountWei = await contract.methods.rawTotalPositionCollateral().call()
+                const totalTokensOutstandingWei = await contract.methods.totalTokensOutstanding().call()
+                const ratio = await contract.methods.collateralizationRatio().call()
+        
+                return {
+                    totalCollateralAmount: Number(window.web3.utils.fromWei(totalCollateralAmountWei)).toLocaleString(),
+                    collateralizationRatio: `${Number(ratio) / 10000}`,
+                    totalTokensOutstanding: Number(window.web3.utils.fromWei(totalTokensOutstandingWei)).toLocaleString()
+                }
+
+            } catch (e) {
+                return {
+                    totalCollateralAmount: "--",
+                    collateralizationRatio: "--",
+                    totalTokensOutstanding: "--"
+                }
             }
         },
-        {
-            isConnected : false 
-        }
-    )
-
-    const { account, isConnected } = state;
-
-    const connect = async () => {
-        if (window.ethereum) {
-            window.web3 = new Web3(window.ethereum);
-            window.ethereum.enable();
-            const accounts = await window.web3.eth.getAccounts()
-            if (accounts && accounts[0]) {
-                dispatch({ type: 'UPDATE_ACCOUNT', data: accounts[0] });
-            }
-            return true;
-        }
-        return false;
-    }
-
-    const disconnect = async () => { 
-        dispatch({ type: 'UPDATE_ACCOUNT', data: undefined });
-    }
-
-    const positionContext = useMemo(
-        () => ({
-            connect,
-            disconnect,
-            account,
-            isConnected
-        }),
-        [ account, isConnected]
+        [contract]
     );
 
     useEffect(() => {
-        async function listenAccount() {
-            window.ethereum.on("accountsChanged", async function () {
-                const accounts = await window.web3.eth.getAccounts();
-                if (accounts && accounts[0]) {
-                    dispatch({ type: 'UPDATE_ACCOUNT', data: accounts[0] });
-                }
-            });
-        }
-        listenAccount();
-    }, []);
+        contract && getStats().then(
+            ({ totalCollateralAmount, collateralizationRatio, totalTokensOutstanding }) => {
+                setTotalCollateralAmount(totalCollateralAmount)
+                setCollateralizationRatio(collateralizationRatio)
+                setTotalTokensOutstanding(totalTokensOutstanding)
+            }
+        );
+    }, [account, getStats, contract]);
 
-    return (
-        <PositionContext.Provider value={positionContext}>
-            {children}
-        </PositionContext.Provider>
-    )
+    return {
+        totalCollateralAmount,
+        collateralizationRatio,
+        totalTokensOutstanding
+    }
 }
-
-export default Provider

@@ -1,7 +1,8 @@
+import { useContext } from "react"
 import styled from "styled-components"
 import { Row, Col, Container, Card, Form, FormGroup, Label, Input, Button, InputGroup, InputGroupAddon, InputGroupText } from "reactstrap"
 import AssetIcon from "../components/assetIcon"
-
+import { ContractsContext } from "../hooks/useContracts"
 
 // const ACTIONS = {
 //     MINT: "Mint tokens",
@@ -10,10 +11,11 @@ import AssetIcon from "../components/assetIcon"
 //     REPAY: "Repay"
 // }
 
+
 const Actions = styled(
     ({ className }) => {
 
-
+        const { daiERC20  } = useContext(ContractsContext)
 
         return (
             <Row className={className}>
@@ -21,31 +23,18 @@ const Actions = styled(
                     <Card>
                         <Row>
                             <Col xs="4">
-                                    <AssetIcon symbol="dai" />
-                                    <InputGroup>
-                                        <Input />
-                                        <InputGroupAddon addonType="append">
-                                            <InputGroupText>DAI</InputGroupText>
-                                        </InputGroupAddon>
-                                    </InputGroup>
-                                    <p>Max: 1234</p>
+                                <AssetIcon symbol="dai" />
+                                <InputGroup>
+                                    <Input />
+                                    <InputGroupAddon addonType="append">
+                                        <InputGroupText>DAI</InputGroupText>
+                                    </InputGroupAddon>
+                                </InputGroup>
+                                <p>Max: {daiERC20.balance} DAI</p>
                             </Col>
-                            <Col xs="4" style={{paddingTop: 35}}>
-
+                            <Col xs="4" style={{ paddingTop: 35 }}>
                                 <Button color="success" block>Mint</Button>
                                 <Button color="warning" block>Unlock</Button>
-
-
-                                {/* <FormGroup>
-                                    
-                                    <Input type="select" name="selectMulti" id="exampleSelectMulti">
-                                        { Object.keys(ACTIONS).map( (item, index) => {
-                                            return (
-                                                <option value={item} key={index}>{ACTIONS[item]}</option>
-                                            )
-                                        })}
-                                    </Input>
-                                </FormGroup> */}
                             </Col>
                             <Col xs="4">
                                 <AssetIcon symbol="bai" />

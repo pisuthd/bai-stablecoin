@@ -16,13 +16,13 @@ import {
     Button
 } from 'reactstrap';
 import styled from "styled-components"
-import { PositionContext } from "./hooks/usePosition"
+import { ContractsContext } from "./hooks/useContracts"
 import { shortAddress } from "./utils"
 
 const Navigation = styled(
     ({ className }) => {
 
-        const { connect, disconnect, isConnected, account } = useContext(PositionContext)
+        const { connect, disconnect, isConnected, account } = useContext(ContractsContext)
 
         const [isOpen, setIsOpen] = useState(false);
 
