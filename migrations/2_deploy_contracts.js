@@ -36,11 +36,11 @@ module.exports = async (deployer, network, accounts) => {
     await fs.writeFileSync(
         ".env",
         `
-DAI_TOKEN_ADDRESS=${DAI_TOKEN_ADDRESS}
-ORACLE_ADDRESS=${Oracle.address}
-TOKEN_FACTORY_ADDRESS=${TokenFactory.address}
-POSITION_MANAGER=${PositionManager.address}
-BAI_TOKEN_ADDRESS=${baiTokenAddress}
+REACT_APP_DAI_TOKEN_ADDRESS=${DAI_TOKEN_ADDRESS}
+REACT_APP_ORACLE_ADDRESS=${Oracle.address}
+REACT_APP_TOKEN_FACTORY_ADDRESS=${TokenFactory.address}
+REACT_APP_POSITION_MANAGER=${PositionManager.address}
+REACT_APP_BAI_TOKEN_ADDRESS=${baiTokenAddress}
 `
     );
 
