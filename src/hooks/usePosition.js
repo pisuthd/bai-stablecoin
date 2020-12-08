@@ -38,6 +38,19 @@ export const usePosition = (address, account) => {
         [contract]
     );
 
+    const mint = useCallback(
+        async (collateralAmount, mintAmount) => {
+        
+          return contract?.methods.create(
+            window.web3.utils.toWei(collateralAmount),
+            window.web3.utils.toWei(mintAmount)
+          ).send({
+              from : account
+          })
+        },
+        [contract, account]
+      );
+
     useEffect(() => {
         contract && getStats().then(
             ({ totalCollateralAmount, collateralizationRatio, totalTokensOutstanding }) => {
@@ -51,6 +64,7 @@ export const usePosition = (address, account) => {
     return {
         totalCollateralAmount,
         collateralizationRatio,
-        totalTokensOutstanding
+        totalTokensOutstanding,
+        mint
     }
 }

@@ -25,6 +25,19 @@ export const useERC20 = (address, account) => {
         [erc20Contract, account]
     );
 
+    const approve = useCallback(
+        async () => {
+         const totalSupply = await erc20Contract?.methods.totalSupply().call()
+          return erc20Contract?.methods.approve(
+            process.env.REACT_APP_POSITION_MANAGER,
+            totalSupply
+          ).send({
+              from : account
+          })
+        },
+        [erc20Contract, account]
+      );
+
     // (2 ** 256 - 1)
 
     useEffect(() => {
@@ -32,6 +45,7 @@ export const useERC20 = (address, account) => {
     }, [account, getBalance, erc20Contract]);
 
     return {
-        balance
+        balance,
+        approve
     }
 }
