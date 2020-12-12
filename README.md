@@ -7,4 +7,4 @@ yarn deploy-contracts // might take a while
 yarn start // start a client
 ```
 
-You would need to switch to connect with localhost:8545 on Metamask.
+Your Metamask would have to switch to localhost:8545
