@@ -125,6 +125,43 @@ contract('PositionManager', accounts => {
         assert.equal(afterRatio > currentRatio , true)
     })
 
+    it("Reduce collateral" , async () => {
+        const currentRatio = await positionManagerInstance.myCollateralizationRatio()
+        const withdrawAmount = "50"
+        await positionManagerInstance.withdraw(web3.utils.toWei(withdrawAmount) )
+        const afterRatio = await positionManagerInstance.myCollateralizationRatio()
+        assert.equal(currentRatio > afterRatio , true)
+    })
+
+    it("Redeem & close the position" , async () => {
+        const collateralCurrencyAddress = await positionManagerInstance.collateralCurrency()
+        const tokenCurrencyAddress = await positionManagerInstance.getTokenCurrency()
+        const collateralToken = await SyntheticToken.at(collateralCurrencyAddress)
+        const syntheticToken = await SyntheticToken.at(tokenCurrencyAddress)
+
+        // Redeem 1000 TEST on account#1
+        const redeemAmountAccount1 = "1000"
+        const beforeRedeemAccount1 = await collateralToken.balanceOf(accounts[0])
+        await syntheticToken.approve(positionManagerInstance.address, await syntheticToken.totalSupply(), {
+            from : accounts[0]
+        })
+        await positionManagerInstance.redeem(web3.utils.toWei(redeemAmountAccount1) , {
+            from : accounts[0]
+        })
+        const afterRedeemAccount1 = await collateralToken.balanceOf(accounts[0])
+        assert.equal(Number(web3.utils.fromWei(afterRedeemAccount1)) > Number(web3.utils.fromWei(beforeRedeemAccount1)) , true)
+        // Redeem all on account#2
+        const totalAmount = await syntheticToken.balanceOf(accounts[1])
+        await syntheticToken.approve(positionManagerInstance.address, await syntheticToken.totalSupply(), {
+            from : accounts[1]
+        })
+        await positionManagerInstance.redeem(totalAmount , {
+            from : accounts[1]
+        })
+        const testBalance = await syntheticToken.balanceOf(accounts[1])
+        assert.equal(testBalance , 0 )
+
+    })
     
 
 })
