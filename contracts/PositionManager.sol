@@ -43,7 +43,7 @@ contract PositionManager is IPositionManager, Lockable {
     event Deposit(address indexed sponsor, uint256 indexed collateralAmount);
     event Withdrawal(address indexed sponsor, uint256 indexed collateralAmount);
     event EndedSponsorPosition(address indexed sponsor);
-
+    event Redeem(address indexed sponsor, uint256 indexed collateralAmount, uint256 indexed tokenAmount);
 
     // FIXME: Setup minSponsorTokens to avoid too low amount of BAI tokens being minted
 
@@ -147,11 +147,11 @@ contract PositionManager is IPositionManager, Lockable {
         nonReentrant()
     {
         PositionData storage positionData = _getPositionData(msg.sender);
-        require(!(numTokens > positionData.tokensOutstanding), "Invalid token amount");
+        require(positionData.tokensOutstanding >= numTokens, "Invalid token amount");
 
         uint256 collateralRedeemed = _calculateCollateralRedeemed(numTokens);
 
-        if (positionData.tokensOutstanding.isEqual(numTokens)) {
+        if (positionData.tokensOutstanding == numTokens) {
             _deleteSponsorPosition(msg.sender);
         } else {
             // Decrement the sponsor's collateral and global collateral amounts.
@@ -180,6 +180,15 @@ contract PositionManager is IPositionManager, Lockable {
     {
         PositionData storage positionData = positions[msg.sender];
         return _getCollateralizationRatio(positionData.rawCollateral, positionData.tokensOutstanding);
+    }
+
+    function myTokensOutstanding()
+        public
+        view
+        returns (uint256 tokensOutstanding)
+    {
+        PositionData storage positionData = positions[msg.sender];
+        return positionData.tokensOutstanding;
     }
 
     function getTokenCurrency()
@@ -251,7 +260,7 @@ contract PositionManager is IPositionManager, Lockable {
         returns (uint256 collateralRedeemed)
     {
         uint256 currentRate = oracle.getValue();
-        return numTokens.div(currentRate).div(1000000);
+        return numTokens.mul(1000000).div(currentRate);
     }
 
     function _deleteSponsorPosition(address sponsor) internal {
