@@ -2,7 +2,6 @@ import styled from "styled-components"
 import { ReactComponent as DaiIcon} from "../assets/dai-logo.svg"
 import { ReactComponent as BaiIcon} from "../assets/bai-logo.svg"
 
-
 const AssetIcon = styled(
     ({className , symbol }) => {
 
