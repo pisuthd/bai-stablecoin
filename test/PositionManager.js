@@ -42,8 +42,8 @@ contract('PositionManager', accounts => {
         assert.equal(collateralCurrency, mockTokenAddress)
         const currentOracle = await positionManagerInstance.oracle()
         assert.equal(currentOracle, oracleInstance.address)
-        const collateralizationRatio = await positionManagerInstance.collateralizationRatio()
-        assert.equal(collateralizationRatio.toString(), `${Number(1.05 * (1000000))}`)
+        const liquidationRatio = await positionManagerInstance.liquidationRatio()
+        assert.equal(liquidationRatio.toString(), `${Number(1.05 * (1000000))}`)
 
     });
 

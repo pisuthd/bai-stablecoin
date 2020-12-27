@@ -32,12 +32,9 @@ contract PositionManager is IPositionManager, Lockable {
     IOracle public oracle;
     // The collateral currency used to back the positions in this contract.
     IERC20 public collateralCurrency;
-    // collateralization ratio. (105%)
-    uint256 public collateralizationRatio;
+    // liquidation ratio. (105%)
+    uint256 public liquidationRatio;
 
-    /****************************************
-     *          EVENTS          *
-    ****************************************/
     event NewSponsor(address indexed sponsor);
     event PositionCreated(address indexed sponsor, uint256 indexed collateralAmount, uint256 indexed tokenAmount);
     event Deposit(address indexed sponsor, uint256 indexed collateralAmount);
@@ -45,7 +42,7 @@ contract PositionManager is IPositionManager, Lockable {
     event EndedSponsorPosition(address indexed sponsor);
     event Redeem(address indexed sponsor, uint256 indexed collateralAmount, uint256 indexed tokenAmount);
 
-    // FIXME: Setup minSponsorTokens to avoid too low amount of BAI tokens being minted
+    // FIXME: Setup minSponsorTokens / maxSponsorTokens to avoid too low amount of BAI tokens being minted
 
     /**
      * @param _collateralAddress currency to be used as collateral
@@ -53,6 +50,7 @@ contract PositionManager is IPositionManager, Lockable {
      * @param _syntheticName name of synthetic token to be created
      * @param _syntheticSymbol symbol of synthetic token to be created
      * @param _tokenFactoryAddress token factory contract address
+     * @param _liquidationRatio required minimum collateral ratio
      */
     constructor(
         address _collateralAddress,
@@ -60,13 +58,13 @@ contract PositionManager is IPositionManager, Lockable {
         string memory _syntheticName,
         string memory _syntheticSymbol,
         address _tokenFactoryAddress,
-        uint256 _collateralizationRatio
+        uint256 _liquidationRatio
     ) public nonReentrant() {
         TokenFactory tf = TokenFactory(_tokenFactoryAddress);
         tokenCurrency = tf.createToken(_syntheticName, _syntheticSymbol, 18);
         oracle = IOracle(_oracleAddress);
         collateralCurrency = IERC20(_collateralAddress);
-        collateralizationRatio = _collateralizationRatio;
+        liquidationRatio = _liquidationRatio;
     }
 
     /**
@@ -233,19 +231,19 @@ contract PositionManager is IPositionManager, Lockable {
     }
 
     function _checkCollateralization(uint256 collateral, uint256 numTokens)
-        private
+        internal
         view
         returns (bool)
     {
-        uint256 currentCR = collateralizationRatio;
+        uint256 minRatio = liquidationRatio;
         
         uint256 thisChange = _getCollateralizationRatio(collateral, numTokens);
 
-        return !(currentCR > (thisChange));
+        return !(minRatio > (thisChange));
     }
 
     function _getCollateralizationRatio(uint256 collateral, uint256 numTokens)
-        private
+        internal
         view
         returns (uint256 ratio)
     {
@@ -255,7 +253,7 @@ contract PositionManager is IPositionManager, Lockable {
     }
 
     function _calculateCollateralRedeemed(uint256 numTokens)
-        private
+        internal
         view
         returns (uint256 collateralRedeemed)
     {
