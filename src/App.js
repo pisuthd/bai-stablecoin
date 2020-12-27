@@ -32,6 +32,11 @@ const GlobalStyle = createGlobalStyle`
   }
   `}
 
+  &.body {
+    height: 100vh;
+    background: #f8f9fa;
+  }
+
 `
 
 function App() {
