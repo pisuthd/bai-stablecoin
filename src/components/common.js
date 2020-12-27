@@ -7,7 +7,7 @@ export const ConnectButton = styled(
         return (
             <div className={className}>
                 <button onClick={onConnect} className="btn">
-                    <img src={icon} className="svg" />
+                    <img src={icon} alt="icon" className="svg" />
                     <div>
                         {children}
                     </div>
