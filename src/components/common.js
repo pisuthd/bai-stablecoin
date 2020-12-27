@@ -3,10 +3,10 @@ import styled from "styled-components"
 // import { Button } from "reactstrap"
 
 export const ConnectButton = styled(
-    ({ className, icon, children }) => {
+    ({ className, icon, onConnect, children }) => {
         return (
             <div className={className}>
-                <button className="btn">
+                <button onClick={onConnect} className="btn">
                     <img src={icon} className="svg" />
                     <div>
                         {children}

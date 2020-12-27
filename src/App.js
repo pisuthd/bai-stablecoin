@@ -1,13 +1,14 @@
 import { useState } from "react"
 import { createGlobalStyle } from 'styled-components'
-import MainPanel from "./Main"
+import { Web3ReactProvider } from '@web3-react/core'
+import { ethers } from "ethers";
+// import MainPanel from "./Main"
 import Navigation from "./Navigation"
-import ContractsProvider from "./hooks/useContracts"
+// import ContractsProvider from "./hooks/useContracts"
 import {
   BrowserRouter as Router,
   Switch,
   Redirect,
-  Link,
   Route
 } from "react-router-dom";
 
@@ -15,6 +16,12 @@ import Home from "./routes/home"
 import GenerateBAI from "./routes/generateBAI"
 import Stake from "./routes/stake"
 import Swap from "./routes/swap"
+
+const getLibrary = (provider) => {
+  const library = new ethers.providers.Web3Provider(provider)
+  library.pollingInterval = 12000
+  return library
+}
 
 const GlobalStyle = createGlobalStyle`
  
@@ -29,17 +36,14 @@ const GlobalStyle = createGlobalStyle`
 
 function App() {
 
-  const [showBackground, setBackground] = useState(false)
+  // const [showBackground, setBackground] = useState(false)
 
   return (
-    <ContractsProvider>
-      <GlobalStyle showBackground={showBackground} />
+    <Web3ReactProvider getLibrary={getLibrary} >
+      <GlobalStyle />
       <div className="body">
         <Router>
-          <Navigation
-
-          />
-         
+          <Navigation />
           <Switch>
             <Route path="/home">
               <Home />
@@ -53,11 +57,11 @@ function App() {
             <Route path="/swap">
               <Swap />
             </Route>
-            <Redirect to="/home"/>
+            <Redirect to="/home" />
           </Switch>
         </Router>
       </div>
-    </ContractsProvider>
+    </Web3ReactProvider>
   );
 }
 
